@@ -32,6 +32,8 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , http-types
+    , scotty
   default-language: Haskell2010
 
 executable Gemini-exe
@@ -44,6 +46,8 @@ executable Gemini-exe
   build-depends:
       Gemini
     , base >=4.7 && <5
+    , http-types
+    , scotty
   default-language: Haskell2010
 
 test-suite Gemini-test
@@ -57,4 +61,6 @@ test-suite Gemini-test
   build-depends:
       Gemini
     , base >=4.7 && <5
+    , http-types
+    , scotty
   default-language: Haskell2010
