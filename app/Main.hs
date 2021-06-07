@@ -6,10 +6,13 @@ import Debug.Trace
 import Web.Scotty
 import Network.HTTP.Types
 import Data.Aeson
+import Control.Monad
 
 main = scotty 3000 $ do
   get "/" $ do                         -- handle GET request on "/" URL
     trace "GET request!\n" (text "This was a GET request!\n") -- send 'text/plain' response
+    ps <- params
+    text (if null ps then "NULL\n" else (fst (head ps)))
   delete "/" $ do
     trace "DELETE request!\n" (html "This was a DELETE request!\n")  -- send 'text/html' response
   post "/" $ do
