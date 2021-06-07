@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Jobcoin</title>
+        <link rel="stylesheet" media="screen" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/css/semantic.min.css">
+        <link rel="stylesheet" media="screen" href="/assets/stylesheets/main.css">
+    </head>
+    <body>
+        <div class="ui page grid">
+            <div class="column">
+                <div class="row">
+                    
+
+    <h1 class="ui header">Jobcoin Viewer for Peter White </h1>
+    <a href="/pout-jersey/api">API docs</a>
+    <p></p>
+
+    <div class="ui two column grid">
+        <div class="row">
+            <div class="column">
+             
+
+<form action="/pout-jersey/send" method="POST" method="POST" class="ui form segment">
+    
+                <h3 class="ui header">Send Jobcoins</h3>
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="field  " id="fromAddress_field" >
+    
+        
+    <input type="text" id="fromAddress" name="fromAddress" value="" placeholder="From Address"/>
+
+    
+
+    
+
+    
+</div>
+
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="field  " id="toAddress_field" >
+    
+        
+    <input type="text" id="toAddress" name="toAddress" value="" placeholder="To Address"/>
+
+    
+
+    
+
+    
+</div>
+
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="field  " id="amount_field" >
+    
+        
+    <input type="text" id="amount" name="amount" value="" placeholder="Amount"/>
+
+    
+
+    
+
+    
+</div>
+
+
+                <button type="submit" class="ui secondary button">Send Coins</button>
+            
+</form>
+
+
+            </div>
+            <div class="column">
+             
+
+<form action="/pout-jersey/create" method="POST" method="POST" class="ui form segment">
+    
+                <h3 class="ui header">Create 50 New Jobcoins</h3>
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="field  " id="address_field" >
+    
+        
+    <input type="text" id="address" name="address" value="" placeholder="Address"/>
+
+    
+
+    
+
+    
+</div>
+
+
+                <button type="submit" class="ui secondary button">Create 50 Coins</button>
+            
+</form>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <h3 class="ui header">Current Balances</h3>
+    <table class="ui collapsing table segment">
+        <thead>
+            <tr>
+                <th>Address</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+                <tr>
+                    <td><a href="/pout-jersey/addresses/Alice">Alice</a></td>
+                    <td>39.5</td>
+                </tr>
+            
+                <tr>
+                    <td><a href="/pout-jersey/addresses/Bob">Bob</a></td>
+                    <td>12.5</td>
+                </tr>
+            
+                <tr>
+                    <td><a href="/pout-jersey/addresses/abc">abc</a></td>
+                    <td>96.0</td>
+                </tr>
+            
+                <tr>
+                    <td><a href="/pout-jersey/addresses/def">def</a></td>
+                    <td>2</td>
+                </tr>
+            
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2">4 Addresses</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <h3 class="ui header">Transactions</h3>
+    <table class="ui collapsing table segment">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+                <tr>
+                    <td>Jun 5, 2021 10:58:27 PM</td>
+                    <td>abc</td>
+                    <td>Alice</td>
+                    <td>2.0</td>
+                </tr>
+            
+                <tr>
+                    <td>Jun 5, 2021 10:58:05 PM</td>
+                    <td>(new)</td>
+                    <td>abc</td>
+                    <td>50</td>
+                </tr>
+            
+                <tr>
+                    <td>Jun 5, 2021 10:50:21 PM</td>
+                    <td>abc</td>
+                    <td>def</td>
+                    <td>2</td>
+                </tr>
+            
+                <tr>
+                    <td>Jun 5, 2021 10:50:11 PM</td>
+                    <td>(new)</td>
+                    <td>abc</td>
+                    <td>50</td>
+                </tr>
+            
+                <tr>
+                    <td>Jun 3, 2021 10:44:53 PM</td>
+                    <td>Alice</td>
+                    <td>Bob</td>
+                    <td>12.5</td>
+                </tr>
+            
+                <tr>
+                    <td>Jun 3, 2021 10:44:53 PM</td>
+                    <td>(new)</td>
+                    <td>Alice</td>
+                    <td>50</td>
+                </tr>
+            
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4">6 Transactions</td>
+            </tr>
+        </tfoot>
+    </table>
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+
