@@ -1,0 +1,16 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    color: red;
+}
+
+h1 {
+  color: purple;
+}
+
+a {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
