@@ -1,0 +1,171 @@
+
+
+
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Jobcoin API</title><link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/slate/bootstrap.min.css"><link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Inconsolata|Raleway:200"><style>/* Highlight.js Theme Tomorrow Night Eighties */
+pre{color:#fff;background:#272b30;border:1px solid rgba(255, 255, 255, 0.2)}
+pre code{display:block;padding:.5em;background:#272b30}
+.hljs-comment,.hljs-title{color:#999}.hljs-variable,.hljs-attribute,.hljs-tag,.hljs-regexp,.ruby .hljs-constant,.xml .hljs-tag .hljs-title,.xml .hljs-pi,.xml .hljs-doctype,.html .hljs-doctype,.css .hljs-id,.css .hljs-class,.css .hljs-pseudo{color:#f2777a}.hljs-number,.hljs-preprocessor,.hljs-pragma,.hljs-built_in,.hljs-literal,.hljs-params,.hljs-constant{color:#f99157}.ruby .hljs-class .hljs-title,.css .hljs-rules .hljs-attribute{color:#fc6}.hljs-string,.hljs-value,.hljs-inheritance,.hljs-header,.ruby .hljs-symbol,.xml .hljs-cdata{color:#9c9}.css .hljs-hexcolor{color:#6cc}.hljs-function,.python .hljs-decorator,.python .hljs-title,.ruby .hljs-function .hljs-title,.ruby .hljs-title .hljs-keyword,.perl .hljs-sub,.javascript .hljs-title,.coffeescript .hljs-title{color:#69c}.hljs-keyword,.javascript .hljs-function{color:#c9c}.hljs{display:block;background:#2d2d2d;color:#ccc;padding:.5em}.coffeescript .javascript,.javascript .xml,.tex .hljs-formula,.xml .javascript,.xml .vbscript,.xml .css,.xml .hljs-cdata{opacity:.5}</style><style>body,
+h4,
+h5 {
+font-family: 'Roboto' sans-serif !important;
+}
+h1,
+h2,
+h3,
+.aglio {
+font-family: 'Raleway' sans-serif !important;
+}
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a {
+display: none;
+}
+h1:hover a,
+h2:hover a,
+h3:hover a,
+h4:hover a,
+h5:hover a {
+display: inline;
+}
+code {
+color: #222;
+background-color: #aaa;
+font-family: 'Inconsolata' monospace !important;
+}
+a[data-target] {
+cursor: pointer;
+}
+h4 {
+font-size: 100%;
+font-weight: bold;
+text-transform: uppercase;
+}
+.back-to-top {
+position: fixed;
+z-index: 1;
+bottom: 0px;
+right: 24px;
+padding: 4px 8px;
+color: #aaa;
+background-color: #171b20;
+text-decoration: none !important;
+border-top: 1px solid rgba(0,0,0,0.1);
+border-left: 1px solid rgba(0,0,0,0.1);
+border-right: 1px solid rgba(0,0,0,0.1);
+border-top-left-radius: 3px;
+border-top-right-radius: 3px;
+}
+.panel {
+overflow: hidden;
+}
+.panel-heading code {
+color: #000;
+background-color: transparent;
+white-space: pre-wrap;
+white-space: -moz-pre-wrap;
+white-space: -pre-wrap;
+white-space: -o-pre-wrap;
+word-wrap: break-word;
+}
+.panel-heading h3 {
+margin-top: 10px;
+margin-bottom: 10px;
+}
+a.list-group-item {
+white-space: nowrap;
+text-overflow: ellipsis;
+overflow: hidden;
+}
+a.list-group-item.heading {
+background-color: #3e444c;
+}
+.list-group-item.collapse {
+display: none;
+}
+.list-group-item.collapse.in {
+display: block;
+}
+#nav {
+margin-top: 38px;
+min-width: 255px;
+top: 0;
+bottom: 0;
+padding-right: 12px;
+padding-bottom: 12px;
+overflow-y: auto;
+}
+    @media (max-width: 1199px) {
+#nav {
+min-width: 212px;
+}
+}
+</style></head><body><a href="#top" class="text-muted back-to-top"><i class="fa fa-toggle-up"></i>&nbsp;Back to top</a><div class="container"><div class="row"><div class="col-md-3"><nav id="nav" class="hidden-sm hidden-xs affix nav"><div class="list-group"><a href="#addresses" class="list-group-item heading">Addresses</a><a href="#addresses-address-info" class="list-group-item"><i class="fa fa-arrow-circle-down"></i>&nbsp;Address Info</a></div><div class="list-group"><a href="#transactions" class="list-group-item heading">Transactions</a><a href="#transactions-transactions" class="list-group-item"><i class="fa fa-bars"></i>&nbsp;Transactions</a><a href="#transactions-transactions-get" style="padding-left: 32px" class="list-group-item"><i class="fa fa-arrow-circle-down"></i>&nbsp;Transaction History</a><a href="#transactions-transactions-post" style="padding-left: 32px" class="list-group-item"><i class="fa fa-plus-square"></i>&nbsp;Send Jobcoins</a></div></nav></div><div class="col-md-9"><div><header><div class="page-header"><h1 id="top">Jobcoin API</h1></div></header><div class="description"><p>Lets you look up address balances, transaction histories, and send Jobcoins.  You probably won’t need all these API endpoints
+    to solve the given coding challenge.  All endpoints allow a <code>callback</code> parameter for JSONP.</p>
+</div></div><div><div class="panel panel-default"><div class="panel-heading"><h3 id="addresses">Addresses&nbsp;<a href="#addresses"><i class="fa fa-link"></i></a></h3></div><div class="panel-body"><h4 id="addresses-address-info">Address Info&nbsp;<a href="#addresses-address-info"><i class="fa fa-link"></i></a></h4><section id="addresses-address-info-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Address info</span></div><div style="float:left"><a href="#addresses-address-info-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>http://jobcoin.gemini.com/pout-jersey/api/addresses/{address}</code></div></div><div class="panel-body"><p>Get the balance and list of transactions for an address. </p>
+    <p>Notes:</p>
+    <ul>
+        <li>This will never return 404 - for an unused address, it will return a balance of 0 and an empty list of transactions.</li>
+        <li>Numbers will be returned as strings to preserve precision.</li>
+        <li>Some transactions lack a “fromAddress” - those are ones where Jobcoins were created from the UI.</li>
+    </ul>
+</div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>address</dt><dd><code>string</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>BobsAddress</span></span></dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#4d1caa4bae52db12f7e14f19fa0403e9" class="pull-right">Toggle</a></li><li id="4d1caa4bae52db12f7e14f19fa0403e9" class="list-group-item panel-collapse collapse"><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">balance</span>": <span class="hljs-value"><span class="hljs-string">"20.25"</span></span>,
+    "<span class="hljs-attribute">transactions</span>": <span class="hljs-value">[
+    {
+    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-string">"2014-04-22T13:10:01.210Z"</span></span>,
+    "<span class="hljs-attribute">toAddress</span>": <span class="hljs-value"><span class="hljs-string">"BobsAddress"</span></span>,
+    "<span class="hljs-attribute">amount</span>": <span class="hljs-value"><span class="hljs-string">"50.35"</span>
+</span>},
+    {
+    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-string">"2014-04-23T18:25:43.511Z"</span></span>,
+    "<span class="hljs-attribute">fromAddress</span>": <span class="hljs-value"><span class="hljs-string">"BobsAddress"</span></span>,
+    "<span class="hljs-attribute">toAddress</span>": <span class="hljs-value"><span class="hljs-string">"AlicesAddress"</span></span>,
+    "<span class="hljs-attribute">amount</span>": <span class="hljs-value"><span class="hljs-string">"30.1"</span>
+</span>}
+    ]
+</span>}
+</code></pre></li></ul></section></div></div></div><div><div class="panel panel-default"><div class="panel-heading"><h3 id="transactions">Transactions&nbsp;<a href="#transactions"><i class="fa fa-link"></i></a></h3></div><div class="panel-body"><h4 id="transactions-transactions">Transactions&nbsp;<a href="#transactions-transactions"><i class="fa fa-link"></i></a></h4><section id="transactions-transactions-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Transaction History</span></div><div style="float:left"><a href="#transactions-transactions-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>http://jobcoin.gemini.com/pout-jersey/api/transactions</code></div></div><div class="panel-body"><p>Get the list of all Jobcoin transactions.</p>
+    <p>Notes:</p>
+    <ul>
+        <li>Numbers will be returned as strings to preserve precision.</li>
+        <li>Some transactions lack a “fromAddress” - those are ones where Jobcoins were created from the UI.</li>
+    </ul>
+</div><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#da33cafecf69ae6cfcaaf0e8f93d2e4e" class="pull-right">Toggle</a></li><li id="da33cafecf69ae6cfcaaf0e8f93d2e4e" class="list-group-item panel-collapse collapse"><h5>Body</h5><pre><code>[
+    {
+    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-string">"2014-04-22T13:10:01.210Z"</span></span>,
+    "<span class="hljs-attribute">toAddress</span>": <span class="hljs-value"><span class="hljs-string">"BobsAddress"</span></span>,
+    "<span class="hljs-attribute">amount</span>": <span class="hljs-value"><span class="hljs-string">"50.35"</span>
+</span>},
+    {
+    "<span class="hljs-attribute">timestamp</span>": <span class="hljs-value"><span class="hljs-string">"2014-04-23T18:25:43.511Z"</span></span>,
+    "<span class="hljs-attribute">fromAddress</span>": <span class="hljs-value"><span class="hljs-string">"BobsAddress"</span></span>,
+    "<span class="hljs-attribute">toAddress</span>": <span class="hljs-value"><span class="hljs-string">"AlicesAddress"</span></span>,
+    "<span class="hljs-attribute">amount</span>": <span class="hljs-value"><span class="hljs-string">"30.1"</span>
+</span>}
+    ]
+</code></pre></li></ul></section><section id="transactions-transactions-post" class="panel panel-success"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Send Jobcoins</span></div><div style="float:left"><a href="#transactions-transactions-post" class="btn btn-xs btn-success">POST</a></div><div style="overflow:hidden"><code>http://jobcoin.gemini.com/pout-jersey/api/transactions</code></div></div><div class="panel-body"><p>Send Jobcoins from one address to another.</p>
+</div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>fromAddress</dt><dd><code>string</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>BobsAddress</span></span><p>The address sending the Jobcoins</p>
+</dd><dt>toAddress</dt><dd><code>string</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>AlicesAddress</span></span><p>The address receiving the Jobcoins</p>
+</dd><dt>amount</dt><dd><code>string</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>30.1</span></span><p>The number of Jobcoins to send, as a string.</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#94ca29674e85c406f90789faba3dcef2" class="pull-right">Toggle</a></li><li id="94ca29674e85c406f90789faba3dcef2" class="list-group-item panel-collapse collapse"><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"OK"</span>
+</span>}
+</code></pre></li><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>422</code></strong><a data-toggle="collapse" data-target="#e8b32221fa97b68a06d8398a41c3cae7" class="pull-right">Toggle</a></li><li id="e8b32221fa97b68a06d8398a41c3cae7" class="list-group-item panel-collapse collapse"><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"Insufficient Funds"</span>
+</span>}
+</code></pre></li></ul></section></div></div></div></div></div></div><p style="text-align: center;" class="text-muted">Generated by&nbsp;<a href="https://github.com/danielgtaylor/aglio" class="aglio">aglio</a>&nbsp;on 04 Aug 2014</p><div id="localFile" style="display: none; position: absolute; top: 0; left: 0; width: 100%; color: white; background: red; font-size: 150%; text-align: center; padding: 1em;">This page may not display correctly when opened as a local file. Instead, view it from a web server.
+
+</div></body><script src="//code.jquery.com/jquery-1.11.0.min.js"></script><script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script><script>(function() {
+if (location.protocol === 'file:') {
+document.getElementById('localFile').style.display = 'block';
+}
+
+}).call(this);
+</script><script>(function() {
+$('table').addClass('table');
+
+}).call(this);
+</script></html>
+

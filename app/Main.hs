@@ -49,6 +49,7 @@ main = do
             (file ("assets/stylesheets/" ++ css))
     -- Get html files without a .html suffix on the link
     get "/pout-jersey" $ do trace "Jobcoin home page\n" serveHtml
+    get "/pout-jersey/api" $ do trace "API home page\n" serveHtml
     get "/" $ do                         -- handle GET request on "/" URL
       trace "GET request!\n" (text "This was a GET request!\n") -- send 'text/plain' response
       ps <- params
