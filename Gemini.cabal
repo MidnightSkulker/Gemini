@@ -33,9 +33,11 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , http-types
     , scotty
     , text
+    , wai
   default-language: Haskell2010
 
 executable Gemini-exe
@@ -49,9 +51,11 @@ executable Gemini-exe
       Gemini
     , aeson
     , base >=4.7 && <5
+    , bytestring
     , http-types
     , scotty
     , text
+    , wai
   default-language: Haskell2010
 
 test-suite Gemini-test
@@ -66,7 +70,9 @@ test-suite Gemini-test
       Gemini
     , aeson
     , base >=4.7 && <5
+    , bytestring
     , http-types
     , scotty
     , text
+    , wai
   default-language: Haskell2010
