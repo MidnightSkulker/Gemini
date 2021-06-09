@@ -1,6 +1,13 @@
 {-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 {-# LANGUAGE ScopedTypeVariables, OverloadedStrings #-}
-module Coins where
+module Coins (
+  Coin,
+  Amount,
+  Ledger(..),
+  LedgerLine(..),
+  ledgerLine,
+  ledger2html,
+  emptyLedger ) where
 
 import Address
 import Data.Aeson
@@ -20,7 +27,7 @@ data LedgerLine = LedgerLine
   } deriving (Show, Generic, ToJSON)
 
 data Ledger =
-  Ledger {entries :: [LedgerLine]} deriving (Show, Generic, ToJSON)
+  Ledger {items :: [LedgerLine]} deriving (Show, Generic, ToJSON)
 
 -- Format a ledger entry for HTML
 ledgerLine :: LedgerLine -> Html
@@ -39,18 +46,21 @@ tableHeader col1hdr col2hdr = do
 
 -- Format the legder table for Html
 -- mapM :: (Taversable t, Monad m) => (a -> m b) -> t a -> m (t b)
-table2col :: Ledger -> Text -> Html
-table2col ledger addr =
-  let numberOfEntries :: Int = length (entries ledger)
-      numberOfEntriesHtml :: Html =
-        if numberOfEntries == 0
+ledger2html :: Ledger -> Text -> Html
+ledger2html ledger addr =
+  let numberOfItems :: Int = length (items ledger)
+      numberOfItemsHtml :: Html =
+        if numberOfItems == 0
         then text "No Entries"
-        else text (pack (show (numberOfEntries) ++ " Addresses"))
+        else text (pack (show (numberOfItems) ++ " Addresses"))
   in do
       table ! class_ "ui collapsing table segment" $ do
         tableHeader "Address" "Balance"
         tbody $ do
-          mapM ledgerLine (entries ledger)
+          mapM ledgerLine (items ledger)
           tfoot $ do
             tr $ do
-              td ! colspan "2" $ numberOfEntriesHtml
+              td ! colspan "2" $ numberOfItemsHtml
+
+emptyLedger :: Ledger
+emptyLedger = Ledger { items = [] }

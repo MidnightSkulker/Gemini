@@ -17,12 +17,14 @@ import Control.Monad.Reader
 import Text.Blaze.Html hiding (text) -- Conflicts with Scotty
 
 import qualified Data.ByteString as B
-import qualified Data.Text as T
+-- import qualified Data.Text as T
 import qualified Data.Text.Lazy as L
 import qualified Data.ByteString.Char8 as C
+import Data.String
 import Data.Default.Class
 import Data.Time.Clock
 import Coins
+import State
 
 -- Why 'ReaderT (TVar AppState)' rather than 'StateT AppState'?
 -- With a state transformer, 'runActionToIO' (below) would have
@@ -51,9 +53,8 @@ modify :: (AppState -> AppState) -> WebM ()
 modify f = ask >>= liftIO . atomically . flip modifyTVar' f
 
 -- Our internal state
-newtype AppState = AppState { tickCount :: Int }
 instance Default AppState where
-    def = AppState 0
+    def = initAppState
 
 -- Read a file into a Text string
 readLazyByteStringFile :: String -> IO L.Text
@@ -89,7 +90,14 @@ main = do
 app :: ScottyT L.Text WebM ()
 app = do
   middleware logStdoutDev
-  -- Get other html files
+  -- Test out getting the root.
+  get "/" $ do
+      c <- webM $ gets tickCount
+      text $ fromString $ show c
+  get "/plusone" $ do
+    webM $ modify $ \ st -> st { tickCount = tickCount st + 1 }
+    redirect "/"
+  -- Server other HTML files
   get (regex "^/(.*).html$") $ do
     setHeader "Content-Type" "text/html"
     path <- param "0"

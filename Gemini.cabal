@@ -29,6 +29,7 @@ library
       Coins
       Lib
       Log
+      State
   other-modules:
       Paths_Gemini
   hs-source-dirs:

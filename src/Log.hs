@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
-module Log where
+module Log (Log(..), emptyLog) where
 
 import Data.Time.Clock
 import Data.Aeson
@@ -25,3 +25,6 @@ instance ToJSON UniversalTime where
 -- such as log4j, I wanted to show some skills coding business
 -- logic and HTML formatting here for the coding challenge.
 data Log = Log {entries :: [Entry]} deriving (Generic, Show, ToJSON)
+
+emptyLog :: Log
+emptyLog = Log { entries = [] }
