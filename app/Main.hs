@@ -9,11 +9,14 @@ import Network.Wai
 import Data.Aeson as Aeson
 import Control.Monad
 import Control.Monad.IO.Class
+import Text.Blaze.Html hiding (text) -- Conflicts with Scotty
 
 import qualified Data.ByteString as B
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as L
 import qualified Data.ByteString.Char8 as C
+import Data.Time.Clock
+import Coins
 
 readLazyByteStringFile :: String -> IO L.Text
 readLazyByteStringFile fileName = do
