@@ -31,7 +31,9 @@ dependencies:
 - time
 - blaze-html
 - blaze-markup
-- transformers
+- stm
+- mtl
+- data-default-class
 
 library:
   source-dirs: src
