@@ -26,10 +26,12 @@ dependencies:
 - aeson
 - text
 - wai
+- wai-extra
 - bytestring
 - time
 - blaze-html
 - blaze-markup
+- transformers
 
 library:
   source-dirs: src
