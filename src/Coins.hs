@@ -11,6 +11,7 @@ module Coins (
   addValue,
   getValue ) where
 
+import Prelude hiding (div, head)
 import Address
 import Data.Aeson
 import GHC.Generics
@@ -18,7 +19,7 @@ import GHC.Generics
 import Text.Blaze.Html
 import Text.Blaze.XHtml1.FrameSet
 import Text.Blaze.Html5.Attributes
-import Data.Text hiding (length)
+import Data.Text hiding (length, head)
 import qualified Data.Map as Map
 
 type Coin = Address
@@ -63,14 +64,15 @@ tableHeader col1hdr col2hdr = do
 -- the ledger using http and displaying it on your browser.
 -- This I convert the ledger to an association list in preparation
 -- for display.
-ledger2html :: Ledger -> Text -> Html
-ledger2html ledger addr =
+ledger2html :: Ledger -> Html
+ledger2html ledger =
   let numberOfItems :: Int = length (items ledger)
       numberOfItemsHtml :: Html =
         if numberOfItems == 0
         then text "No Entries"
         else text (pack (show (numberOfItems) ++ " Addresses"))
   in do
+      h3 ! class_ "ui header" $ "Current Balances"
       table ! class_ "ui collapsing table segment" $ do
         tableHeader "Address" "Balance"
         tbody $ do

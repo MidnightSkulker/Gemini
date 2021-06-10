@@ -14,10 +14,11 @@ import Control.Monad.IO.Class
 import Control.Concurrent.STM
 import Control.Monad.Reader
 -- import qualified Control.Monad.Trans.State as ST
+import Text.Blaze hiding (text)
 import Text.Blaze.Html hiding (text) -- Conflicts with Scotty
+import Text.Blaze.Html.Renderer.String
 
 import qualified Data.ByteString as B
--- import qualified Data.Text as T
 import qualified Data.Text.Lazy as L
 import qualified Data.ByteString.Char8 as C
 import Data.String
@@ -26,6 +27,7 @@ import Data.Time.Clock
 import Coins
 import State
 import Assoc
+import HomePage
 
 -- Why 'ReaderT (TVar AppState)' rather than 'StateT AppState'?
 -- With a state transformer, 'runActionToIO' (below) would have
@@ -78,11 +80,11 @@ serveHtml = do
 
 main :: IO ()
 main = do
-    sync <- newTVarIO def
-        -- 'runActionToIO' is called once per action.
-    let runActionToIO m = runReaderT (runWebM m) sync
-
-    scottyT 3000 runActionToIO app
+  putStrLn (renderHtml (homePage "Peter White" emptyLedger))
+  sync <- newTVarIO def
+  -- 'runActionToIO' is called once per action.
+  let runActionToIO m = runReaderT (runWebM m) sync
+  scottyT 3000 runActionToIO app
 
 -- This app doesn't use raise/rescue, so the exception
 -- type is ambiguous. We can fix it by putting a type
@@ -112,11 +114,11 @@ app = do
   -- Get html files without a .html suffix on the link
   -- I was having trouble getting apache to serve /pout-jersey,
   -- pout-jersey/api, and so on.
-  get "/pout-jersey" $ do serveHtml
+  get "/pout-jersey" $ -- do serveHtml
+    html (L.pack (renderHtml (homePage "Peter White" emptyLedger)))
   get "/pout-jersey/api" $ do serveHtml
-  get "/pout-jersey/create" $ do
-    ps <- params
-    text (L.pack ("get Under construction\n" ++ (getParameter ps "address")))
+    -- ps <- params
+    -- text (L.pack ("get Under construction\n" ++ (getParameter ps "address")))
   post "/pout-jersey/create" $ do
     ps <- params
     ledger <- webM $ gets appLedger
