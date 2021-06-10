@@ -7,7 +7,9 @@ module Coins (
   LedgerLine(..),
   ledgerLine,
   ledger2html,
-  emptyLedger ) where
+  emptyLedger,
+  addValue,
+  getValue ) where
 
 import Address
 import Data.Aeson
@@ -17,6 +19,7 @@ import Text.Blaze.Html
 import Text.Blaze.XHtml1.FrameSet
 import Text.Blaze.Html5.Attributes
 import Data.Text hiding (length)
+import qualified Data.Map as Map
 
 type Coin = Address
 type Amount = Float
@@ -26,15 +29,24 @@ data LedgerLine = LedgerLine
     amount :: Amount
   } deriving (Show, Generic, ToJSON)
 
+type LedgerEntry = (Address, Amount)
+
+-- The requirements of the coding demo is that the ledger needs
+-- to be displayable on a web page. So our ledger will have
+-- only a small number of entries, not thousands or millions of
+-- entries. Nevertheless, we will consider efficient of lookups
+-- and updates in the ledger by implementing it as a Map (i.e. a
+-- hash table), not a list. That way updates and searches will
+-- take nearly constant time.
 data Ledger =
-  Ledger {items :: [LedgerLine]} deriving (Show, Generic, ToJSON)
+  Ledger {items :: Map.Map Address Amount} deriving (Show, Generic, ToJSON)
 
 -- Format a ledger entry for HTML
-ledgerLine :: LedgerLine -> Html
+ledgerLine :: LedgerEntry -> Html
 ledgerLine l = do
   tr $ do
-    td (a (text (pack("href=\"/pout-jersey/addresses/\"") `append` (pack (user l)))))
-    td (text (pack (show (amount l))))
+    td (a (text (pack("href=\"/pout-jersey/addresses/\"") `append` (pack (fst l)))))
+    td (text (pack (show (snd l))))
 
 -- Format the table header
 tableHeader :: Text -> Text -> Html
@@ -46,6 +58,11 @@ tableHeader col1hdr col2hdr = do
 
 -- Format the legder table for Html
 -- mapM :: (Taversable t, Monad m) => (a -> m b) -> t a -> m (t b)
+-- For formatting the web page, I must assume the ledger does not
+-- have a zillion entries, so that it is reasonable to Send
+-- the ledger using http and displaying it on your browser.
+-- This I convert the ledger to an association list in preparation
+-- for display.
 ledger2html :: Ledger -> Text -> Html
 ledger2html ledger addr =
   let numberOfItems :: Int = length (items ledger)
@@ -57,10 +74,21 @@ ledger2html ledger addr =
       table ! class_ "ui collapsing table segment" $ do
         tableHeader "Address" "Balance"
         tbody $ do
-          mapM ledgerLine (items ledger)
+          mapM ledgerLine (Map.assocs (items ledger))
           tfoot $ do
             tr $ do
               td ! colspan "2" $ numberOfItemsHtml
 
+-- Initial value of the Ledger
 emptyLedger :: Ledger
-emptyLedger = Ledger { items = [] }
+emptyLedger = Ledger { items = Map.empty }
+
+-- Add value to a user in the ledger
+-- adjust :: Ord k => (a -> a) -> k -> Map k a -> Map k a
+addValue :: Amount -> Address -> Ledger -> Ledger
+addValue amount addr ledger =
+  Ledger { items = Map.adjust (\x -> x + 50.0) addr (items ledger) }
+
+-- findWithDefault :: Ord k => a -> k -> Map k a -> a
+getValue :: Address -> Ledger -> Amount
+getValue addr ledger = Map.findWithDefault 0.0 addr (items ledger)

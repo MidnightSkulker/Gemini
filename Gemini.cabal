@@ -41,6 +41,7 @@ library
     , blaze-html
     , blaze-markup
     , bytestring
+    , containers
     , data-default-class
     , http-types
     , mtl
@@ -66,6 +67,7 @@ executable Gemini-exe
     , blaze-html
     , blaze-markup
     , bytestring
+    , containers
     , data-default-class
     , http-types
     , mtl
@@ -92,6 +94,7 @@ test-suite Gemini-test
     , blaze-html
     , blaze-markup
     , bytestring
+    , containers
     , data-default-class
     , http-types
     , mtl

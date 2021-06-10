@@ -116,7 +116,16 @@ app = do
   get "/pout-jersey/api" $ do serveHtml
   get "/pout-jersey/create" $ do
     ps <- params
-    text (L.pack ("Under construction\n" ++ (getParameter ps "address")))
+    text (L.pack ("get Under construction\n" ++ (getParameter ps "address")))
+  post "/pout-jersey/create" $ do
+    ps <- params
+    ledger <- webM $ gets appLedger
+    webM $ modify $ \ st -> add50 "Alice" st
+    let (Just addr) = ps Assoc.! "address"
+    text (L.pack ("Value for " ++
+                  (L.unpack addr) ++
+                  show (getValue (L.unpack addr) ledger)))
+    text (L.pack ("post Under construction\n" ++ (getParameter ps "address")))
   get "/pout-jersey/addresses/:addr" $ do
     setHeader "Content-Type" "application/json"
     addr :: String <- param "addr"
