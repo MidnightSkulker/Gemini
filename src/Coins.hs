@@ -21,6 +21,7 @@ import Text.Blaze.XHtml1.FrameSet
 import Text.Blaze.Html5.Attributes
 import Data.Text hiding (length, head)
 import qualified Data.Map as Map
+import Data.Foldable (foldlM)
 
 type Coin = Address
 type Amount = Float
@@ -46,7 +47,9 @@ data Ledger =
 ledgerLine :: LedgerEntry -> Html
 ledgerLine l = do
   tr $ do
-    td (a (text (pack("href=\"/pout-jersey/addresses/\"") `append` (pack (fst l)))))
+    td $ do
+      let linkStr :: Text = pack ("/pout-jersey/addresses/" ++ fst l)
+      a ! href (textValue linkStr) $ text (pack (fst l))
     td (text (pack (show (snd l))))
 
 -- Format the table header
@@ -67,19 +70,17 @@ tableHeader col1hdr col2hdr = do
 ledger2html :: Ledger -> Html
 ledger2html ledger =
   let numberOfItems :: Int = length (items ledger)
-      numberOfItemsHtml :: Html =
-        if numberOfItems == 0
-        then text "No Entries"
-        else text (pack (show (numberOfItems) ++ " Addresses"))
+      numberOfItemsHtml :: Html = text (pack (show (numberOfItems) ++ " Addresses"))
   in do
       h3 ! class_ "ui header" $ "Current Balances"
       table ! class_ "ui collapsing table segment" $ do
         tableHeader "Address" "Balance"
         tbody $ do
-          mapM ledgerLine (Map.assocs (items ledger))
-          tfoot $ do
-            tr $ do
-              td ! colspan "2" $ numberOfItemsHtml
+          ledgerLine ("Gronk", 0.0)
+          foldMap ledgerLine (Map.assocs (items ledger))
+        tfoot $ do
+          tr $ do
+            td ! colspan "2" $ numberOfItemsHtml
 
 -- Initial value of the Ledger
 emptyLedger :: Ledger
@@ -94,3 +95,14 @@ addValue amount addr ledger =
 -- findWithDefault :: Ord k => a -> k -> Map k a -> a
 getValue :: Address -> Ledger -> Amount
 getValue addr ledger = Map.findWithDefault 0.0 addr (items ledger)
+
+foldMapM
+  :: (Monad m, Monoid w, Foldable t)
+  => (a -> m w)
+  -> t a
+  -> m w
+foldMapM f = foldlM
+  (\acc a -> do
+    w <- f a
+    return $! mappend acc w)
+  mempty
