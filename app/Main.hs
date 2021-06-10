@@ -25,6 +25,7 @@ import Data.Default.Class
 import Data.Time.Clock
 import Coins
 import State
+import Assoc
 
 -- Why 'ReaderT (TVar AppState)' rather than 'StateT AppState'?
 -- With a state transformer, 'runActionToIO' (below) would have
@@ -113,6 +114,9 @@ app = do
   -- pout-jersey/api, and so on.
   get "/pout-jersey" $ do serveHtml
   get "/pout-jersey/api" $ do serveHtml
+  get "/pout-jersey/create" $ do
+    ps <- params
+    text (L.pack ("Under construction\n" ++ (getParameter ps "address")))
   get "/pout-jersey/addresses/:addr" $ do
     setHeader "Content-Type" "application/json"
     addr :: String <- param "addr"

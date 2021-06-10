@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Address
+      Assoc
       Coins
       Lib
       Log
