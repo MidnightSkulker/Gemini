@@ -1,12 +1,14 @@
-{-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric, DeriveAnyClass, ScopedTypeVariables #-}
 module State (
   AppState(..),
   initAppState,
+  getAppValue,
   add50) where
 
 import Log
 import Address
 import Coins
+import Debug.Trace
 import Data.Aeson
 import GHC.Generics
 
@@ -25,7 +27,8 @@ initAppState = AppState {
 -- Add coins to a ledger
 add50 :: Address -> AppState -> AppState
 add50 addr appState =
-  appState { appLedger = addValue 50.0 addr (appLedger appState)}
+  let call :: String = "---> add50, addr = " ++ addr
+  in trace call (appState { appLedger = addValue 50.0 addr (appLedger appState)})
 
 getAppValue :: Address -> AppState -> Amount
 getAppValue addr appState = getValue addr (appLedger appState)

@@ -26,6 +26,7 @@ import Data.Default.Class
 import Data.Time.Clock
 import Coins
 import State
+import Address
 import Assoc
 import HomePage
 
@@ -33,12 +34,11 @@ import HomePage
 -- With a state transformer, 'runActionToIO' (below) would have
 -- to provide the state to _every action_, and save the resulting
 -- state, using an MVar. This means actions would be blocking,
--- effectively meaning only one request could be serviced at a time.
+-- meaning only one request could be serviced at a time.
 -- The 'ReaderT' solution means only actions that actually modify
 -- the state need to block/retry.
 --
--- Also note: your monad must be an instance of 'MonadIO' for
--- Scotty to use it.
+-- Scotty requires the monad to be an instance of MonadIO
 newtype WebM a = WebM { runWebM :: ReaderT (TVar AppState) IO a }
     deriving (Applicative, Functor, Monad, MonadIO, MonadReader (TVar AppState))
 
@@ -48,36 +48,35 @@ newtype WebM a = WebM { runWebM :: ReaderT (TVar AppState) IO a }
 webM :: MonadTrans t => WebM a -> t WebM a
 webM = lift
 
--- Some helpers to make this feel more like a state monad.
+-- Get the State
 gets :: (AppState -> b) -> WebM b
 gets f = ask >>= liftIO . readTVarIO >>= return . f
 
+-- Modify the State
 modify :: (AppState -> AppState) -> WebM ()
 modify f = ask >>= liftIO . atomically . flip modifyTVar' f
 
--- Our internal state
+-- Our internal state for the jobcoin demo
 instance Default AppState where
     def = initAppState
 
--- Read a file into a Text string
-readLazyByteStringFile :: String -> IO L.Text
-readLazyByteStringFile fileName = do
-  str :: String <- readFile fileName
-  return (L.pack str)
-
--- Serve an HTML
+-- Serve an HTML file
 serveHtml :: ActionT L.Text WebM ()
 serveHtml = do
   r <- request
   let rawpath :: String = C.unpack (rawPathInfo r)
       path :: String = "html" ++ rawpath ++ ".html"
-  liftIO (putStrLn (("serveHtml --> ") ++ path))
+  -- liftIO (putStrLn (("serveHtml --> ") ++ path))
   setHeader "Content-Type" "text/html"
   file path
 
--- type ScottyST = ST.StateT String ScottyM ()
--- scottyST :: ScottyST -> IO () = liftM scotty
+-- Get the account value for the specified user/address
+getLedgerValue :: Address -> ActionT L.Text WebM Amount
+getLedgerValue addr = do
+  l <- webM $ gets appLedger
+  return (getValue addr l)
 
+-- Set up to call the web server.
 main :: IO ()
 main = do
   putStrLn (renderHtml (homePage "Peter White" emptyLedger))
@@ -85,6 +84,10 @@ main = do
   -- 'runActionToIO' is called once per action.
   let runActionToIO m = runReaderT (runWebM m) sync
   scottyT 3000 runActionToIO app
+
+-- A debugging print out
+debugit :: String -> ActionT L.Text WebM ()
+debugit = liftIO . putStrLn
 
 -- This app doesn't use raise/rescue, so the exception
 -- type is ambiguous. We can fix it by putting a type
@@ -99,6 +102,8 @@ app = do
       text $ fromString $ show c
   get "/plusone" $ do
     webM $ modify $ \ st -> st { tickCount = tickCount st + 1 }
+    t <- webM $ gets appLedger
+    liftIO (putStrLn (("...... tickCount = ") ++ show t))
     redirect "/"
   -- Server other HTML files
   get (regex "^/(.*).html$") $ do
@@ -116,23 +121,20 @@ app = do
   -- pout-jersey/api, and so on.
   get "/pout-jersey" $ -- do serveHtml
     html (L.pack (renderHtml (homePage "Peter White" emptyLedger)))
-  get "/pout-jersey/api" $ do serveHtml
-    -- ps <- params
-    -- text (L.pack ("get Under construction\n" ++ (getParameter ps "address")))
+  get "/pout-jersey/api" $ serveHtml
   post "/pout-jersey/create" $ do
     ps <- params
-    ledger <- webM $ gets appLedger
-    let (Just addr) = ps Assoc.! "address"
-    webM $ modify $ \ st -> add50 "addr" st
-    text (L.pack ("Value for " ++
-                  (L.unpack addr) ++
-                  show (getValue (L.unpack addr) ledger)))
-    text (L.pack ("post Under construction\n" ++ (getParameter ps "address")))
+    let (Just addr) = ps Assoc.! "address" -- Dangerous
+    webM $ modify $ \ st -> add50 (L.unpack addr) st
+    value <- webM $ gets (getAppValue (L.unpack addr))
+    let valueOut :: String = "Value for " ++ (L.unpack addr) ++ " = " ++ show value
+    text (L.pack valueOut)
+    debugit valueOut
   get "/pout-jersey/addresses/:addr" $ do
     setHeader "Content-Type" "application/json"
     addr :: String <- param "addr"
-    let addrstr :: String = "addesses/" ++ addr
-    text (L.pack addrstr)
+    value <- webM $ gets (getAppValue addr)
+    let response :: String = addr ++ " has " ++ show value ++ " jobcoins"
+    text (L.pack response)
   notFound $ do
-    r <- request
     text "There is no such route.\n"

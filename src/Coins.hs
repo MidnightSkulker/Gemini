@@ -16,12 +16,13 @@ import Address
 import Data.Aeson
 import GHC.Generics
 -- Imports for formatting HTML
-import Text.Blaze.Html
-import Text.Blaze.XHtml1.FrameSet
-import Text.Blaze.Html5.Attributes
+import Text.Blaze.Html hiding (items)
+import Text.Blaze.XHtml1.FrameSet hiding (items)
+import Text.Blaze.Html5.Attributes hiding (items)
 import Data.Text hiding (length, head)
 import qualified Data.Map as Map
 import Data.Foldable (foldlM)
+import Debug.Trace
 
 type Coin = Address
 type Amount = Float
@@ -41,7 +42,7 @@ type LedgerEntry = (Address, Amount)
 -- hash table), not a list. That way updates and searches will
 -- take nearly constant time.
 data Ledger =
-  Ledger {items :: Map.Map Address Amount} deriving (Show, Generic, ToJSON)
+  Ledger {entries :: Map.Map Address Amount} deriving (Show, Generic, ToJSON)
 
 -- Format a ledger entry for HTML
 ledgerLine :: LedgerEntry -> Html
@@ -69,29 +70,29 @@ tableHeader col1hdr col2hdr = do
 -- for display.
 ledger2html :: Ledger -> Html
 ledger2html ledger =
-  let numberOfItems :: Int = length (items ledger)
-      numberOfItemsHtml :: Html = text (pack (show (numberOfItems) ++ " Addresses"))
+  let numberOfEntries :: Int = length (entries ledger)
+      numberOfEntriesHtml :: Html = text (pack (show (numberOfEntries) ++ " Addresses"))
   in do
       h3 ! class_ "ui header" $ "Current Balances"
       table ! class_ "ui collapsing table segment" $ do
         tableHeader "Address" "Balance"
         tbody $ do
           ledgerLine ("Gronk", 0.0)
-          foldMap ledgerLine (Map.assocs (items ledger))
+          foldMap ledgerLine (Map.assocs (entries ledger))
         tfoot $ do
           tr $ do
-            td ! colspan "2" $ numberOfItemsHtml
+            td ! colspan "2" $ numberOfEntriesHtml
 
 -- Initial value of the Ledger
 emptyLedger :: Ledger
-emptyLedger = Ledger { items = Map.empty }
+emptyLedger = Ledger { entries = Map.empty }
 
 -- Add value to a user in the ledger
 -- adjust :: Ord k => (a -> a) -> k -> Map k a -> Map k a
 addValue :: Amount -> Address -> Ledger -> Ledger
 addValue amount addr ledger =
-  Ledger { items = Map.adjust (\x -> x + 50.0) addr (items ledger) }
+  Ledger {entries = Map.insertWith (+) addr amount (entries ledger)}
 
 -- findWithDefault :: Ord k => a -> k -> Map k a -> a
 getValue :: Address -> Ledger -> Amount
-getValue addr ledger = Map.findWithDefault 0.0 addr (items ledger)
+getValue addr ledger = Map.findWithDefault 0.0 addr (entries ledger)
