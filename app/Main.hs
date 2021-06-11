@@ -123,6 +123,10 @@ app = do
     ledger <- webM $ gets appLedger
     html (L.pack (renderHtml (homePage "Peter White" ledger)))
   get "/pout-jersey/api" $ serveHtml
+  post "/pout-jersey/send" $ do
+    ps <- params
+    let params :: String = show ps
+    text (L.pack ("send parameters: " ++ params))
   post "/pout-jersey/create" $ do
     ps <- params
     let (Just addr) = ps Assoc.! "address" -- TODO: Dangerous
@@ -136,4 +140,6 @@ app = do
     let response :: String = addr ++ " has " ++ show value ++ " jobcoins"
     text (L.pack response)
   notFound $ do
-    text "There is no such route.\n"
+    r <- request
+    let path :: C.ByteString = rawPathInfo r
+    text (L.pack ("There is no such route: " ++ (C.unpack path) ++ "\n"))
