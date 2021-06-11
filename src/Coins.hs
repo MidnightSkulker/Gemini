@@ -95,14 +95,3 @@ addValue amount addr ledger =
 -- findWithDefault :: Ord k => a -> k -> Map k a -> a
 getValue :: Address -> Ledger -> Amount
 getValue addr ledger = Map.findWithDefault 0.0 addr (items ledger)
-
-foldMapM
-  :: (Monad m, Monoid w, Foldable t)
-  => (a -> m w)
-  -> t a
-  -> m w
-foldMapM f = foldlM
-  (\acc a -> do
-    w <- f a
-    return $! mappend acc w)
-  mempty
