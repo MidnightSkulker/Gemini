@@ -26,9 +26,11 @@ initAppState = AppState {
 
 -- Add coins to a ledger
 add50 :: Address -> AppState -> AppState
-add50 addr appState =
-  let call :: String = "---> add50, addr = " ++ addr
-  in trace call (appState { appLedger = addValue 50.0 addr (appLedger appState)})
+add50 addr appState = appState { appLedger = addValue 50.0 addr (appLedger appState)}
 
 getAppValue :: Address -> AppState -> Amount
 getAppValue addr appState = getValue addr (appLedger appState)
+
+addAppTransaction :: UniversalTime -> Address -> Address -> Amount -> AppState -> AppState
+addAppTransaction currentTime transFromAddr transToAddr transAmount appState =
+  appState { appLog = addTransaction currentTime transFromAddr transToAddr transAmount (appLog appState) }

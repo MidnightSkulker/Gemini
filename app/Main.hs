@@ -127,7 +127,14 @@ app = do
   get "/pout-jersey/api" $ serveHtml
   post "/pout-jersey/send" $ do
     ps <- params
+    currentTime <- liftIO getCurrentTime
     let params :: String = show ps
+        fromAddr :: String = params "fromAddress"
+        toAddr :: String = params "toAddress"
+        amount :: String = params "amount"
+        datetime :: String = currentTime
+    -- Enter the transaction into the log
+    webM $ modify $ \ st -> addAppTransaction currentTime fromAddr toAddr amount st
     text (L.pack ("send parameters: " ++ params))
   post "/pout-jersey/create" $ do
     ps <- params
