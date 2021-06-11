@@ -31,6 +31,8 @@ import Assoc
 import Log
 import HomePage
 
+-- WebM comes from https://github.com/scotty-web/scotty/blob/master/examples/globalstate.hs
+--
 -- Why 'ReaderT (TVar AppState)' rather than 'StateT AppState'?
 -- With a state transformer, 'runActionToIO' (below) would have
 -- to provide the state to _every action_, and save the resulting
@@ -97,15 +99,8 @@ debugit = liftIO . putStrLn
 app :: ScottyT L.Text WebM ()
 app = do
   middleware logStdoutDev
-  -- Test out getting the root.
   get "/" $ do
-      c <- webM $ gets tickCount
-      text $ fromString $ show c
-  get "/plusone" $ do -- TODO: Remove
-    webM $ modify $ \ st -> st { tickCount = tickCount st + 1 }
-    t <- webM $ gets appLedger
-    liftIO (putStrLn (("...... tickCount = ") ++ show t))
-    redirect "/"
+    redirect "/pout-jersey"
   -- Server other HTML files
   get (regex "^/(.*).html$") $ do
     setHeader "Content-Type" "text/html"
@@ -135,7 +130,7 @@ app = do
     let amount :: Float = read amountStr -- TODO: Could fail
     -- Enter the transaction into the log
     webM $ modify $ \ st -> addAppTransaction currentTime fromAddr toAddr amount st
-    text (L.pack ("send parameters: " ++ params))
+    redirect "/pout-jersey"
   post "/pout-jersey/create" $ do
     ps <- params
     let (Just addr) = ps Assoc.! "address" -- TODO: Dangerous
