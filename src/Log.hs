@@ -2,7 +2,8 @@
 {-# LANGUAGE ScopedTypeVariables, OverloadedStrings #-}
 module Log (
     Log(..),
-    emptyLog) where
+    emptyLog,
+    transactionsHtml) where
 
 import Data.Time.Clock
 import Data.Aeson

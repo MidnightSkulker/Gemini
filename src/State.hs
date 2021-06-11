@@ -14,13 +14,13 @@ import GHC.Generics
 
 -- The global state for the Server
 data AppState = AppState
-  { applog :: Log,
+  { appLog :: Log,
     appLedger :: Ledger,
     tickCount :: Int -- For trying out ideas
   } deriving (Show, Generic, ToJSON)
 
 initAppState = AppState {
-  applog = emptyLog,
+  appLog = emptyLog,
   appLedger = emptyLedger,
   tickCount = 0 }
 

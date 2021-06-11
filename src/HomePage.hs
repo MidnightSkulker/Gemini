@@ -5,6 +5,7 @@ module HomePage where
 import Prelude hiding (div, head, id)
 import Address
 import Coins
+import Log
 import Data.Aeson
 import GHC.Generics
 -- Imports for formatting HTML
@@ -16,8 +17,8 @@ import qualified Data.Map as Map
 
 -- Building the home page with combinators, to make it easier
 -- to insert the ledger and the transaction log.
-homePage :: String -> Ledger -> Html
-homePage titleStr ledger = do
+homePage :: String -> Ledger -> Log -> Html
+homePage titleStr ledger log = do
   docType
   html $ do
     head $ do
@@ -50,4 +51,4 @@ homePage titleStr ledger = do
                       input ! type_ "text" ! id "address" ! name "address" ! value "" ! placeholder"Address"
                     button ! type_ "submit" ! class_ "ui secondary button" $ text "Create 50 Coins"
             ledger2html ledger
-    text "Under construction"
+            transactionsHtml log

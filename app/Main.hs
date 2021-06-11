@@ -28,6 +28,7 @@ import Coins
 import State
 import Address
 import Assoc
+import Log
 import HomePage
 
 -- Why 'ReaderT (TVar AppState)' rather than 'StateT AppState'?
@@ -79,7 +80,7 @@ getLedgerValue addr = do
 -- Set up to call the web server.
 main :: IO ()
 main = do
-  putStrLn (renderHtml (homePage "Peter White" emptyLedger))
+  putStrLn (renderHtml (homePage "Peter White" emptyLedger emptyLog))
   sync <- newTVarIO def
   -- 'runActionToIO' is called once per action.
   let runActionToIO m = runReaderT (runWebM m) sync
@@ -120,8 +121,9 @@ app = do
   -- I was having trouble getting apache to serve /pout-jersey,
   -- pout-jersey/api, and so on.
   get "/pout-jersey" $ do -- do serveHtml
-    ledger <- webM $ gets appLedger
-    html (L.pack (renderHtml (homePage "Peter White" ledger)))
+    ledger <- webM $ gets appLedger -- TODO: Possible time window here?
+    log <- webM $ gets appLog
+    html (L.pack (renderHtml (homePage "Peter White" ledger log)))
   get "/pout-jersey/api" $ serveHtml
   post "/pout-jersey/send" $ do
     ps <- params
