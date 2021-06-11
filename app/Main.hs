@@ -100,7 +100,7 @@ app = do
   get "/" $ do
       c <- webM $ gets tickCount
       text $ fromString $ show c
-  get "/plusone" $ do
+  get "/plusone" $ do -- TODO: Remove
     webM $ modify $ \ st -> st { tickCount = tickCount st + 1 }
     t <- webM $ gets appLedger
     liftIO (putStrLn (("...... tickCount = ") ++ show t))
@@ -119,17 +119,16 @@ app = do
   -- Get html files without a .html suffix on the link
   -- I was having trouble getting apache to serve /pout-jersey,
   -- pout-jersey/api, and so on.
-  get "/pout-jersey" $ -- do serveHtml
-    html (L.pack (renderHtml (homePage "Peter White" emptyLedger)))
+  get "/pout-jersey" $ do -- do serveHtml
+    ledger <- webM $ gets appLedger
+    html (L.pack (renderHtml (homePage "Peter White" ledger)))
   get "/pout-jersey/api" $ serveHtml
   post "/pout-jersey/create" $ do
     ps <- params
-    let (Just addr) = ps Assoc.! "address" -- Dangerous
+    let (Just addr) = ps Assoc.! "address" -- TODO: Dangerous
     webM $ modify $ \ st -> add50 (L.unpack addr) st
     value <- webM $ gets (getAppValue (L.unpack addr))
-    let valueOut :: String = "Value for " ++ (L.unpack addr) ++ " = " ++ show value
-    text (L.pack valueOut)
-    debugit valueOut
+    redirect "/pout-jersey"
   get "/pout-jersey/addresses/:addr" $ do
     setHeader "Content-Type" "application/json"
     addr :: String <- param "addr"

@@ -18,7 +18,8 @@ import GHC.Generics
 -- Imports for formatting HTML
 import Text.Blaze.Html hiding (items)
 import Text.Blaze.XHtml1.FrameSet hiding (items)
-import Text.Blaze.Html5.Attributes hiding (items)
+import Text.Blaze.Html5.Attributes
+import qualified Data.Text as T
 import Data.Text hiding (length, head)
 import qualified Data.Map as Map
 import Data.Foldable (foldlM)
@@ -78,7 +79,6 @@ ledger2html ledger =
       table ! class_ "ui collapsing table segment" $ do
         tableHeader "Address" "Balance"
         tbody $ do
-          ledgerLine ("Gronk", 0.0) -- TODO: Remove this line
           -- Produce the list of ledger items
           foldMap ledgerLine (Map.assocs (items ledger))
         tfoot $ do
