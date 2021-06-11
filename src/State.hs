@@ -3,13 +3,15 @@ module State (
   AppState(..),
   initAppState,
   getAppValue,
-  add50) where
+  add50,
+  addAppTransaction) where
 
 import Log
 import Address
 import Coins
 import Debug.Trace
 import Data.Aeson
+import Data.Time.Clock
 import GHC.Generics
 
 -- The global state for the Server
@@ -31,6 +33,6 @@ add50 addr appState = appState { appLedger = addValue 50.0 addr (appLedger appSt
 getAppValue :: Address -> AppState -> Amount
 getAppValue addr appState = getValue addr (appLedger appState)
 
-addAppTransaction :: UniversalTime -> Address -> Address -> Amount -> AppState -> AppState
+addAppTransaction :: UTCTime -> Address -> Address -> Amount -> AppState -> AppState
 addAppTransaction currentTime transFromAddr transToAddr transAmount appState =
   appState { appLog = addTransaction currentTime transFromAddr transToAddr transAmount (appLog appState) }

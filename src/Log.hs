@@ -3,7 +3,8 @@
 module Log (
     Log(..),
     emptyLog,
-    transactionsHtml) where
+    transactionsHtml,
+    addTransaction) where
 
 import Data.Time.Clock
 import Data.Aeson
@@ -23,12 +24,12 @@ data Entry = Entry {
   fromAddr :: Address,
   toAddr :: Address,
   amount :: Amount,
-  datetime :: UniversalTime
+  datetime :: UTCTime
   } deriving (Generic, Show, ToJSON)
 
 -- Only thing compiler cannot derive for ToJSON instance
-instance ToJSON UniversalTime where
-  toJSON = String . T.pack . show
+-- instance ToJSON UTCTime where
+--   toJSON = String . T.pack . show
 
 -- The log is a list of log entries
 -- Normally a log would be done using some logging facility
@@ -67,6 +68,6 @@ logLine entry = do
       td $ text (pack (show (amount entry)))
       td $ text (pack (show (datetime entry)))
 
-addTransaction :: UniversalTime -> Address -> Address -> Amount -> Log -> Log
+addTransaction :: UTCTime -> Address -> Address -> Amount -> Log -> Log
 addTransaction  transTime transFromAddr transToAddr transAmount log =
   Log { entries = (Entry transFromAddr transToAddr transAmount transTime):(entries log) }
