@@ -16,8 +16,8 @@ import Address
 import Data.Aeson
 import GHC.Generics
 -- Imports for formatting HTML
-import Text.Blaze.Html hiding (items)
-import Text.Blaze.XHtml1.FrameSet hiding (items)
+import Text.Blaze.Html
+import Text.Blaze.XHtml1.FrameSet
 import Text.Blaze.Html5.Attributes
 import qualified Data.Text as T
 import Data.Text hiding (length, head)
