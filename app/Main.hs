@@ -82,7 +82,7 @@ getLedgerValue addr = do
 -- Set up to call the web server.
 main :: IO ()
 main = do
-  putStrLn (renderHtml (homePage "Peter White" emptyLedger emptyLog))
+  -- putStrLn (renderHtml (homePage "Peter White" emptyLedger emptyLog))
   sync <- newTVarIO def
   -- 'runActionToIO' is called once per action.
   let runActionToIO m = runReaderT (runWebM m) sync
