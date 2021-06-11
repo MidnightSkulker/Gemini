@@ -122,8 +122,8 @@ app = do
   post "/pout-jersey/create" $ do
     ps <- params
     ledger <- webM $ gets appLedger
-    webM $ modify $ \ st -> add50 "Alice" st
     let (Just addr) = ps Assoc.! "address"
+    webM $ modify $ \ st -> add50 "addr" st
     text (L.pack ("Value for " ++
                   (L.unpack addr) ++
                   show (getValue (L.unpack addr) ledger)))
