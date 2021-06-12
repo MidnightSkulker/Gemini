@@ -145,7 +145,7 @@ app = do
     -- Enter the transaction into the log
     value <- webM $ do
       -- Find out if the sender has sufficient funds
-      when (amount <= value) $ do
+      when ((amount <= value) && not (null fromAddr) && (not (null toAddr))) $ do
         -- Add the transaction to the log
         modify $ \ st -> addAppTransaction currentTime fromAddr toAddr amount st
         -- Transfer the funds from sender to receiver
@@ -154,6 +154,8 @@ app = do
       return value
       -- TODO: Include an error message in the homePage
     when (amount > value) (status status403)
+    when (null fromAddr) (status status403)
+    when (null toAddr) (status status403)
     redirect "/pout-jersey"
   post "/pout-jersey/create" $ do
     ps <- params
