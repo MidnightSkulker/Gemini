@@ -101,19 +101,23 @@ debugit = liftIO . putStrLn
 app :: ScottyT L.Text WebM ()
 app = do
   middleware logStdoutDev
+
   get "/" $ do
     redirect "/pout-jersey"
-  -- Server other HTML files
+
+  -- Serve other HTML files
   get (regex "^/(.*).html$") $ do
     setHeader "Content-Type" "text/html"
     path <- param "0"
     file ("html/" ++ path) -- a la Sinatra
+
   -- Get css files from assets/stylesheets
   get "/assets/stylesheets/:css" $ do
     setHeader "Content-Type" "text/css"
     -- Sinatra style route and capture.
     css <- param "css"
     file ("assets/stylesheets/" ++ css)
+
   -- Get html files without a .html suffix on the link
   -- I was having trouble getting apache to serve /pout-jersey,
   -- pout-jersey/api, and so on.
@@ -130,8 +134,14 @@ app = do
       ledger <- gets appLedger
       log <- gets appLog
       return (ledger, log)
-    html (L.pack (renderHtml (homePage "Peter White" ledger log)))
+    errMsg <- webM $ gets lastError
+    when (not (null errMsg)) $ do
+      webM $ do
+        modify $ \ st -> removeError st
+    html (L.pack (renderHtml (homePage "Peter White" errMsg ledger log)))
+
   get "/pout-jersey/api" $ serveHtml
+
   post "/pout-jersey/send" $ do
     let validParams :: String -> String -> String -> Bool
         validParams fromAddr toAddr amountStr =
@@ -162,6 +172,7 @@ app = do
     when (null fromAddr) (status status403)
     when (null toAddr) (status status403)
     redirect "/pout-jersey"
+
   post "/pout-jersey/create" $ do
     ps <- params
     let (Just addr) = ps Assoc.! "address" -- TODO: Dangerous
@@ -170,12 +181,14 @@ app = do
       -- Create the funds
       webM $ modify $ \ st -> appAddValue (L.unpack addr) 50.0 st
     redirect "/pout-jersey"
+
   get "/pout-jersey/addresses/:addr" $ do
     setHeader "Content-Type" "application/json"
     addr :: String <- param "addr"
     value <- webM $ gets (getAppValue addr)
     let response :: String = addr ++ " has " ++ show value ++ " jobcoins"
     text (L.pack response)
+
   notFound $ do
     r <- request
     let path :: C.ByteString = rawPathInfo r

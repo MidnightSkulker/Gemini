@@ -12,13 +12,14 @@ import GHC.Generics
 import Text.Blaze.Html
 import Text.Blaze.XHtml1.FrameSet
 import Text.Blaze.Html5.Attributes hiding (title, form)
-import Data.Text hiding (length, head)
+import Data.Text hiding (length, head, null)
+import Control.Monad
 import qualified Data.Map as Map
 
 -- Building the home page with combinators, to make it easier
 -- to insert the ledger and the transaction log.
-homePage :: String -> Ledger -> Log -> Html
-homePage titleStr ledger log = do
+homePage :: String -> String -> Ledger -> Log -> Html
+homePage titleStr lastError ledger log = do
   docType
   html $ do
     head $ do
@@ -26,6 +27,8 @@ homePage titleStr ledger log = do
       link ! rel "stylesheet" ! media "screen" ! href "//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/css/semantic.min.css"
       link ! rel "stylesheet" ! media "screen" ! href "/assets/stylesheets/main.css"
     body $ do
+      when (not (null lastError)) $ do
+        h1 ! class_ "ui header" $ text (pack lastError)
       div ! class_ "ui page grid" $ do
         div ! class_ "column" $ do
           div ! class_ "row" $ do
