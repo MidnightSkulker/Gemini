@@ -133,27 +133,32 @@ app = do
     html (L.pack (renderHtml (homePage "Peter White" ledger log)))
   get "/pout-jersey/api" $ serveHtml
   post "/pout-jersey/send" $ do
+    let validParams :: String -> String -> String -> Bool
+        validParams fromAddr toAddr amountStr =
+          isFloat amountStr && not (null fromAddr) && not (null toAddr)
     ps <- params
     currentTime :: UTCTime <- liftIO getCurrentTime
     let params :: String = show ps
     fromAddr :: String <- param "fromAddress"
     toAddr :: String <- param "toAddress"
     amountStr :: String <- param "amount"
-    let amount :: Float = read amountStr -- TODO: Could fail
-    -- Find out how much the sender has.
-    value <- webM $ gets (getAppValue fromAddr)
-    -- Enter the transaction into the log
-    value <- webM $ do
-      -- Find out if the sender has sufficient funds
-      when ((amount <= value) && not (null fromAddr) && (not (null toAddr))) $ do
-        -- Add the transaction to the log
-        modify $ \ st -> addAppTransaction currentTime fromAddr toAddr amount st
-        -- Transfer the funds from sender to receiver
-        modify $ \ st -> appAddValue fromAddr (-amount) st
-        modify $ \ st -> appAddValue toAddr amount st
+    when (validParams fromAddr toAddr amountStr) $ do
+      let amount :: Float = read amountStr
+      -- Find out how much the sender has.
+      value <- webM $ gets (getAppValue fromAddr)
+      -- Enter the transaction into the log
+      webM $ do
+        -- Find out if the sender has sufficient funds
+        when (amount <= value) $ do
+          -- Add the transaction to the log
+          modify $ \ st -> addAppTransaction currentTime fromAddr toAddr amount st
+          -- Transfer the funds from sender to receiver
+          modify $ \ st -> appAddValue fromAddr (-amount) st
+          modify $ \ st -> appAddValue toAddr amount st
+          return ()
       return value
-      -- TODO: Include an error message in the homePage
-    when (amount > value) (status status403)
+        -- TODO: Include an error message in the homePage
+      when (amount > value) (status status403)
     when (null fromAddr) (status status403)
     when (null toAddr) (status status403)
     redirect "/pout-jersey"

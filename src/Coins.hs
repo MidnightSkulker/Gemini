@@ -9,7 +9,8 @@ module Coins (
   ledger2html,
   emptyLedger,
   addValue,
-  getValue ) where
+  getValue,
+  isFloat ) where
 
 import Prelude hiding (div, head)
 import Address
@@ -19,6 +20,7 @@ import GHC.Generics
 import Text.Blaze.Html
 import Text.Blaze.XHtml1.FrameSet
 import Text.Blaze.Html5.Attributes
+import Text.Read
 import qualified Data.Text as T
 import Data.Text hiding (length, head)
 import qualified Data.Map as Map
@@ -27,6 +29,14 @@ import Debug.Trace
 
 type Coin = Address
 type Amount = Float
+
+-- Test if a string is a floating point number
+isFloat :: String -> Bool
+isFloat s =
+  let f :: Maybe Float = readMaybe s
+  in case f of
+    Nothing -> False
+    Just x -> True
 
 data LedgerLine = LedgerLine
   { user :: Address,
