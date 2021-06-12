@@ -8,7 +8,9 @@ import Web.Scotty.Trans
 import Network.HTTP.Types
 import Network.Wai
 import Network.Wai.Middleware.RequestLogger
+import Network.HTTP.Types.Status
 import Data.Aeson as Aeson
+
 import Control.Monad
 import Control.Monad.IO.Class
 import Control.Concurrent.STM
@@ -116,8 +118,18 @@ app = do
   -- I was having trouble getting apache to serve /pout-jersey,
   -- pout-jersey/api, and so on.
   get "/pout-jersey" $ do -- do serveHtml
-    ledger <- webM $ gets appLedger -- TODO: Possible time window here?
-    log <- webM $ gets appLog
+    -- TODO: Possible time window here?
+    -- We are getting two items from the global state
+    -- (each in an atomic manner)
+    -- It is possible for another API call to happen between these two.
+    -- I will need to generalize the series of actions, and make the
+    -- series of actions atomically.
+    -- FIXED! Just need to make a do block of the two gets, so
+    -- they will be done together atomically.
+    (ledger, log) <- webM $ do
+      ledger <- gets appLedger
+      log <- gets appLog
+      return (ledger, log)
     html (L.pack (renderHtml (homePage "Peter White" ledger log)))
   get "/pout-jersey/api" $ serveHtml
   post "/pout-jersey/send" $ do
@@ -128,14 +140,28 @@ app = do
     toAddr :: String <- param "toAddress"
     amountStr :: String <- param "amount"
     let amount :: Float = read amountStr -- TODO: Could fail
+    -- Find out how much the sender has.
+    value <- webM $ gets (getAppValue fromAddr)
     -- Enter the transaction into the log
-    webM $ modify $ \ st -> addAppTransaction currentTime fromAddr toAddr amount st
+    value <- webM $ do
+      -- Find out if the sender has sufficient funds
+      when (amount <= value) $ do
+        -- Add the transaction to the log
+        modify $ \ st -> addAppTransaction currentTime fromAddr toAddr amount st
+        -- Transfer the funds from sender to receiver
+        modify $ \ st -> appAddValue fromAddr (-amount) st
+        modify $ \ st -> appAddValue toAddr amount st
+      return value
+      -- TODO: Include an error message in the homePage
+    when (amount > value) (status status403)
     redirect "/pout-jersey"
   post "/pout-jersey/create" $ do
     ps <- params
     let (Just addr) = ps Assoc.! "address" -- TODO: Dangerous
-    webM $ modify $ \ st -> add50 (L.unpack addr) st
-    value <- webM $ gets (getAppValue (L.unpack addr))
+    -- Make sure address is not null
+    when (not (null (L.unpack addr))) $ do
+      -- Create the funds
+      webM $ modify $ \ st -> appAddValue (L.unpack addr) 50.0 st
     redirect "/pout-jersey"
   get "/pout-jersey/addresses/:addr" $ do
     setHeader "Content-Type" "application/json"

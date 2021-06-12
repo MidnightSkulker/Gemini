@@ -3,7 +3,7 @@ module State (
   AppState(..),
   initAppState,
   getAppValue,
-  add50,
+  appAddValue,
   addAppTransaction) where
 
 import Log
@@ -27,8 +27,8 @@ initAppState = AppState {
   tickCount = 0 }
 
 -- Add coins to a ledger
-add50 :: Address -> AppState -> AppState
-add50 addr appState = appState { appLedger = addValue 50.0 addr (appLedger appState)}
+appAddValue :: Address -> Amount ->AppState -> AppState
+appAddValue addr amount appState = appState { appLedger = addValue amount addr (appLedger appState)}
 
 getAppValue :: Address -> AppState -> Amount
 getAppValue addr appState = getValue addr (appLedger appState)
