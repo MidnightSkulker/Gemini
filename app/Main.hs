@@ -7,7 +7,6 @@ import Network.HTTP.Types
 import Network.Wai
 import Network.Wai.Middleware.RequestLogger
 import Network.HTTP.Types.Status
-import Data.Aeson as Aeson
 import WebM
 import Control.Monad
 import Control.Concurrent.STM
@@ -167,9 +166,10 @@ app = do
   get "/pout-jersey/addresses/:addr" $ do
     setHeader "Content-Type" "application/json"
     addr :: String <- param "addr"
-    value <- webM $ gets (getAppValue addr)
-    let response :: String = addr ++ " has " ++ show value ++ " jobcoins"
-    text (L.pack response)
+    amount <- webM $ gets (getAppValue addr)
+    entries <- webM $ gets (getAllAppTransactions addr)
+    -- json :: ToJSON a => a -> ActionM ()
+    json ( TransactionReport { balance = amount, transactions = entries } )
 
   notFound $ do
     r <- request

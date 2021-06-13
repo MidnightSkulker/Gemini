@@ -2,9 +2,13 @@
 {-# LANGUAGE ScopedTypeVariables, OverloadedStrings #-}
 module Log (
     Log(..),
+    Entry(..),
+    TransactionReport(..),
     emptyLog,
     transactionsHtml,
-    addTransaction) where
+    addTransaction,
+    getTransactions,
+    getAllTransactions ) where
 
 import Data.Time.Clock
 import Data.Aeson
@@ -12,24 +16,25 @@ import GHC.Generics
 import Text.Blaze.Html
 import Text.Blaze.XHtml1.FrameSet
 import Text.Blaze.Html5.Attributes hiding (datetime)
-import qualified Data.Text as T
-import Data.Text hiding (length, head)
-import qualified Data.Map as Map
+import qualified Data.Text.Lazy as L
+import Data.Text hiding (length, head, filter)
+import qualified Data.Map as Map hiding (filter)
 import Data.Foldable (foldlM)
 
 import Address
 import Coins (Amount)
 
 data Entry = Entry {
-  fromAddr :: Address,
-  toAddr :: Address,
   amount :: Amount,
-  datetime :: UTCTime
+  toAddress :: Address,
+  fromAddress :: Address,
+  timestamp :: UTCTime
   } deriving (Generic, Show, ToJSON)
 
--- Only thing compiler cannot derive for ToJSON instance
--- instance ToJSON UTCTime where
---   toJSON = String . T.pack . show
+data TransactionReport = TransactionReport {
+  balance :: Amount,
+  transactions :: [Entry]
+  } deriving (Generic, Show, ToJSON)
 
 -- The log is a list of log entries
 -- Normally a log would be done using some logging facility
@@ -63,11 +68,18 @@ transactionsHtml log =
 logLine :: Entry -> Html
 logLine entry = do
     tr $ do
-      td $ text (pack (show (fromAddr entry)))
-      td $ text (pack (show (toAddr entry)))
+      td $ text (pack (show (timestamp entry)))
+      td $ text (pack (show (fromAddress entry)))
+      td $ text (pack (show (toAddress entry)))
       td $ text (pack (show (amount entry)))
-      td $ text (pack (show (datetime entry)))
 
 addTransaction :: UTCTime -> Address -> Address -> Amount -> Log -> Log
-addTransaction  transTime transFromAddr transToAddr transAmount log =
-  Log { entries = (Entry transFromAddr transToAddr transAmount transTime):(entries log) }
+addTransaction transAmount transToAddr transFromAddr transTime log =
+  Log { entries = (Entry transTime transFromAddr transToAddr transAmount ):(entries log) }
+
+getTransactions :: Address -> Log -> [Entry]
+getTransactions addr log = filter (\e -> toAddress e == addr) (entries log)
+
+-- For debugging
+getAllTransactions :: Address -> Log -> [Entry]
+getAllTransactions addr log = entries log

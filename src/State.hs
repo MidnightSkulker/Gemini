@@ -5,6 +5,8 @@ module State (
   getAppValue,
   appAddValue,
   addAppTransaction,
+  getAppTransactions,
+  getAllAppTransactions,
   removeErrors,
   setErrors ) where
 
@@ -47,3 +49,9 @@ getAppValue addr appState = getValue addr (appLedger appState)
 addAppTransaction :: UTCTime -> Address -> Address -> Amount -> AppState -> AppState
 addAppTransaction currentTime transFromAddr transToAddr transAmount appState =
   appState { appLog = addTransaction currentTime transFromAddr transToAddr transAmount (appLog appState) }
+
+getAppTransactions :: Address -> AppState -> [Entry]
+getAppTransactions add appState = getTransactions add (appLog appState)
+
+getAllAppTransactions :: Address -> AppState -> [Entry]
+getAllAppTransactions addr appState = getAllTransactions addr (appLog appState)
