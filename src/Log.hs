@@ -6,7 +6,8 @@ module Log (
     TransactionReport(..),
     emptyLog,
     transactionsHtml,
-    addTransaction,
+    addSendTransaction,
+    addCreateTransaction,
     getTransactions,
     getAllTransactions ) where
 
@@ -24,10 +25,14 @@ import Data.Foldable (foldlM)
 import Address
 import Coins (Amount)
 
-data Entry = Entry {
+data Entry = SendEntry {
   amount :: Amount,
   toAddress :: Address,
   fromAddress :: Address,
+  timestamp :: UTCTime }|
+  CreateEntry {
+  amount :: Amount,
+  toAddress :: Address,
   timestamp :: UTCTime
   } deriving (Generic, Show, ToJSON)
 
@@ -66,20 +71,38 @@ transactionsHtml log =
           td ! colspan "2" $ numberOfLogsHtml
 
 logLine :: Entry -> Html
-logLine entry = do
-    tr $ do
-      td $ text (pack (show (timestamp entry)))
-      td $ text (pack (show (fromAddress entry)))
-      td $ text (pack (show (toAddress entry)))
-      td $ text (pack (show (amount entry)))
+logLine entry =
+  case entry of
+    SendEntry amnt toA fromA timeS ->
+      do
+        tr $ do
+          td $ text (pack (show (timestamp entry)))
+          td $ text (pack (show (fromAddress entry)))
+          td $ text (pack (show (toAddress entry)))
+          td $ text (pack (show (amount entry)))
+    CreateEntry amnt fromA timeS ->
+      do
+        tr $ do
+          td $ text (pack (show (timestamp entry)))
+          td $ text (pack (show (toAddress entry)))
+          td $ text (pack (show (amount entry)))
 
-addTransaction :: UTCTime -> Address -> Address -> Amount -> Log -> Log
-addTransaction transAmount transToAddr transFromAddr transTime log =
-  Log { entries = (Entry transTime transFromAddr transToAddr transAmount ):(entries log) }
+addSendTransaction :: UTCTime -> Address -> Address -> Amount -> Log -> Log
+addSendTransaction transAmount transToAddr transFromAddr transTime log =
+  Log { entries = (SendEntry transTime transFromAddr transToAddr transAmount ):(entries log) }
+
+addCreateTransaction :: UTCTime -> Address -> Amount -> Log -> Log
+addCreateTransaction transAmount transToAddr transTime log =
+  Log { entries = (CreateEntry transTime transToAddr transAmount ):(entries log) }
 
 getTransactions :: Address -> Log -> [Entry]
 getTransactions addr log =
-  filter (\e -> toAddress e == addr || fromAddress e == addr) (entries log)
+  let matchAddress :: Address -> Entry -> Bool
+      matchAddress addr entry =
+        case entry of
+          SendEntry amnt toA fromA timeS -> toA == addr || fromA == addr
+          CreateEntry amnt toA timeS -> toA == addr
+  in filter (matchAddress addr) (entries log)
 
 -- For debugging
 getAllTransactions :: Address -> Log -> [Entry]

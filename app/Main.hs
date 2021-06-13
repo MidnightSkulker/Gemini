@@ -144,7 +144,7 @@ app = do
         -- Find out if the sender has sufficient funds
         if amount <= value then do
           -- Add the transaction to the log
-          modify $ \ st -> addAppTransaction currentTime fromAddr toAddr amount st
+          modify $ \ st -> addAppSendTransaction currentTime fromAddr toAddr amount st
           -- Transfer the funds from sender to receiver
           modify $ \ st -> appAddValue fromAddr (-amount) st
           modify $ \ st -> appAddValue toAddr amount st
@@ -157,10 +157,13 @@ app = do
   post "/pout-jersey/create" $ do
     ps <- params
     let (Just addr) = ps Assoc.! "address" -- TODO: Dangerous
+        addrStr :: String = L.unpack addr
+    currentTime :: UTCTime <- liftIO getCurrentTime
     -- Make sure address is not null
-    when (not (null (L.unpack addr))) $ do
+    when (not (null addrStr)) $ do
       -- Create the funds
-      webM $ modify $ \ st -> appAddValue (L.unpack addr) 50.0 st
+      webM $ modify $ \ st -> appAddValue addrStr 50.0 st
+      webM $ modify $ \ st -> addAppCreateTransaction currentTime addrStr 50.0 st
     redirect "/pout-jersey"
 
   get "/pout-jersey/addresses/:addr" $ do

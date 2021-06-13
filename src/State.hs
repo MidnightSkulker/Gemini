@@ -4,7 +4,8 @@ module State (
   initAppState,
   getAppValue,
   appAddValue,
-  addAppTransaction,
+  addAppSendTransaction,
+  addAppCreateTransaction,
   getAppTransactions,
   getAllAppTransactions,
   removeErrors,
@@ -46,9 +47,13 @@ appAddValue addr amount appState = appState { appLedger = addValue amount addr (
 getAppValue :: Address -> AppState -> Amount
 getAppValue addr appState = getValue addr (appLedger appState)
 
-addAppTransaction :: UTCTime -> Address -> Address -> Amount -> AppState -> AppState
-addAppTransaction currentTime transFromAddr transToAddr transAmount appState =
-  appState { appLog = addTransaction currentTime transFromAddr transToAddr transAmount (appLog appState) }
+addAppSendTransaction :: UTCTime -> Address -> Address -> Amount -> AppState -> AppState
+addAppSendTransaction currentTime transFromAddr transToAddr transAmount appState =
+  appState { appLog = addSendTransaction currentTime transFromAddr transToAddr transAmount (appLog appState) }
+
+addAppCreateTransaction :: UTCTime -> Address -> Amount -> AppState -> AppState
+addAppCreateTransaction currentTime transToAddr transAmount appState =
+  appState { appLog = addCreateTransaction currentTime transToAddr transAmount (appLog appState) }
 
 getAppTransactions :: Address -> AppState -> [Entry]
 getAppTransactions add appState = getTransactions add (appLog appState)
