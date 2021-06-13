@@ -132,6 +132,12 @@ app = do
       -- We know the amountStr is a valid float at this point, so
       -- the conversion to float should not cause an error.
       let amount :: Float = read amountStr
+      -- TODO: The following code does an access to the app state,
+      -- followed by three modifications the to the app state. To
+      -- make this safe(r), we need to encode this action down at
+      -- the Software Transactional Memory (STM) level, and then
+      -- perform the whole sequence atomically.
+      --
       -- Find out how much the sender has.
       value <- webM $ gets (getAppValue fromAddr)
       -- Enter the transaction into the log
