@@ -78,7 +78,8 @@ addTransaction transAmount transToAddr transFromAddr transTime log =
   Log { entries = (Entry transTime transFromAddr transToAddr transAmount ):(entries log) }
 
 getTransactions :: Address -> Log -> [Entry]
-getTransactions addr log = filter (\e -> toAddress e == addr) (entries log)
+getTransactions addr log =
+  filter (\e -> toAddress e == addr || fromAddress e == addr) (entries log)
 
 -- For debugging
 getAllTransactions :: Address -> Log -> [Entry]

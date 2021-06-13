@@ -167,7 +167,7 @@ app = do
     setHeader "Content-Type" "application/json"
     addr :: String <- param "addr"
     amount <- webM $ gets (getAppValue addr)
-    entries <- webM $ gets (getAllAppTransactions addr)
+    entries <- webM $ gets (getAppTransactions addr)
     -- json :: ToJSON a => a -> ActionM ()
     json ( TransactionReport { balance = amount, transactions = entries } )
 
