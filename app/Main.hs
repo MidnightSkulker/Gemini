@@ -160,10 +160,14 @@ app = do
         addrStr :: String = L.unpack addr
     currentTime :: UTCTime <- liftIO getCurrentTime
     -- Make sure address is not null
-    when (not (null addrStr)) $ do
+    if (not (null addrStr)) then do
       -- Create the funds
       webM $ modify $ \ st -> appAddValue addrStr 50.0 st
       webM $ modify $ \ st -> addAppCreateTransaction currentTime addrStr 50.0 st
+    else do
+      status status403
+      webM $ modify $ \ st -> setErrors ["Null address for create request"] st
+
     redirect "/pout-jersey"
 
   get "/pout-jersey/addresses/:addr" $ do

@@ -9,6 +9,7 @@ module State (
   getAppTransactions,
   getAllAppTransactions,
   removeErrors,
+  setError,
   setErrors ) where
 
 import Log
@@ -36,9 +37,13 @@ initAppState = AppState {
 removeErrors :: AppState -> AppState
 removeErrors appState = appState { lastErrors = [] }
 
--- Add an error message
+-- Add error messages
 setErrors :: [String] -> AppState -> AppState
 setErrors errorMessages appState = appState { lastErrors = errorMessages }
+
+-- Add one error message
+setError :: String -> AppState -> AppState
+setError errorMessage appState = setErrors [errorMessage] appState
 
 -- Add coins to a ledger
 appAddValue :: Address -> Amount ->AppState -> AppState
