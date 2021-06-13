@@ -140,7 +140,7 @@ app = do
       -- Find out how much the sender has.
       value <- webM $ gets (getAppValue fromAddr)
       -- Enter the transaction into the log
-      webM $ do
+      success <- webM $ do
         -- Find out if the sender has sufficient funds
         if amount <= value then do
           -- Add the transaction to the log
@@ -148,7 +148,13 @@ app = do
           -- Transfer the funds from sender to receiver
           modify $ \ st -> appAddValue fromAddr (-amount) st
           modify $ \ st -> appAddValue toAddr amount st
-        else return ()
+          return True
+        else
+          return False
+      when (not success) $ do
+        status status403
+        webM $ modify $ \ st -> setError (fromAddr ++ " has insufficient funds") st
+        redirect "/pout-jersey"
     else do
       status status403
       webM $ modify $ \ st -> setErrors (paramErrors fromAddr toAddr amountStr) st
