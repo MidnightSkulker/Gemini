@@ -2,25 +2,20 @@
 module Main where
 
 import Lib
-import Debug.Trace
--- import Web.Scotty
 import Web.Scotty.Trans
 import Network.HTTP.Types
 import Network.Wai
 import Network.Wai.Middleware.RequestLogger
 import Network.HTTP.Types.Status
 import Data.Aeson as Aeson
-
+import WebM
 import Control.Monad
-import Control.Monad.IO.Class
 import Control.Concurrent.STM
 import Control.Monad.Reader
--- import qualified Control.Monad.Trans.State as ST
 import Text.Blaze hiding (text)
 import Text.Blaze.Html hiding (text) -- Conflicts with Scotty
 import Text.Blaze.Html.Renderer.String
 
-import qualified Data.ByteString as B
 import qualified Data.Text.Lazy as L
 import qualified Data.ByteString.Char8 as C
 import Data.String
@@ -32,34 +27,6 @@ import Address
 import Assoc
 import Log
 import HomePage
-
--- WebM comes from https://github.com/scotty-web/scotty/blob/master/examples/globalstate.hs
---
--- Why 'ReaderT (TVar AppState)' rather than 'StateT AppState'?
--- With a state transformer, 'runActionToIO' (below) would have
--- to provide the state to _every action_, and save the resulting
--- state, using an MVar. This means actions would be blocking,
--- meaning only one request could be serviced at a time.
--- The 'ReaderT' solution means only actions that actually modify
--- the state need to block/retry.
---
--- Scotty requires the monad to be an instance of MonadIO
-newtype WebM a = WebM { runWebM :: ReaderT (TVar AppState) IO a }
-    deriving (Applicative, Functor, Monad, MonadIO, MonadReader (TVar AppState))
-
--- Scotty's monads are layered on top of our custom monad.
--- We define this synonym for lift in order to be explicit
--- about when we are operating at the 'WebM' layer.
-webM :: MonadTrans t => WebM a -> t WebM a
-webM = lift
-
--- Get the State
-gets :: (AppState -> b) -> WebM b
-gets f = ask >>= liftIO . readTVarIO >>= return . f
-
--- Modify the State
-modify :: (AppState -> AppState) -> WebM ()
-modify f = ask >>= liftIO . atomically . flip modifyTVar' f
 
 -- Our internal state for the jobcoin demo
 instance Default AppState where
@@ -128,16 +95,10 @@ app = do
     -- It is possible for another API call to happen between these two.
     -- I will need to generalize the series of actions, and make the
     -- series of actions atomically.
-    -- FIXED! Just need to make a do block of the two gets, so
-    -- they will be done together atomically.
-    (ledger, log) <- webM $ do
-      ledger <- gets appLedger
-      log <- gets appLog
-      return (ledger, log)
+    -- FIXED! Created a webM combinator that gets both parts at once.
+    (ledger, log) <- webM $ gets2 appLedger appLog
     errMsgs <- webM $ gets lastErrors
-    when (not (null errMsgs)) $ do
-      webM $ do
-        modify $ \ st -> removeErrors st
+    when (not (null errMsgs)) $ webM $ modify $ \ st -> removeErrors st
     html (L.pack (renderHtml (homePage "Peter White" errMsgs ledger log)))
 
   get "/pout-jersey/api" $ serveHtml

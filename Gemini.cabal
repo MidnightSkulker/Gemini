@@ -32,6 +32,7 @@ library
       Lib
       Log
       State
+      WebM
   other-modules:
       Paths_Gemini
   hs-source-dirs:
