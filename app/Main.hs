@@ -134,43 +134,58 @@ app = do
       ledger <- gets appLedger
       log <- gets appLog
       return (ledger, log)
-    errMsg <- webM $ gets lastError
-    when (not (null errMsg)) $ do
+    errMsgs <- webM $ gets lastErrors
+    when (not (null errMsgs)) $ do
       webM $ do
-        modify $ \ st -> removeError st
-    html (L.pack (renderHtml (homePage "Peter White" errMsg ledger log)))
+        modify $ \ st -> removeErrors st
+    html (L.pack (renderHtml (homePage "Peter White" errMsgs ledger log)))
 
   get "/pout-jersey/api" $ serveHtml
 
   post "/pout-jersey/send" $ do
-    let validParams :: String -> String -> String -> Bool
-        validParams fromAddr toAddr amountStr =
-          isFloat amountStr && not (null fromAddr) && not (null toAddr)
     ps <- params
+    -- Check the validity of the send call, and return a list of
+    -- error messages. An empty list means there was no error.
+    let paramErrors :: String -> String -> String -> [String]
+        paramErrors fromAddr toAddr amountStr =
+          let ret1 :: [String] = if not (isFloat amountStr)
+                                 then ["The amount is not a valid floating point number"]
+                                 else []
+              ret2 :: [String] = if null fromAddr
+                                 then ret1 ++ ["The sender address cannot be null"]
+                                 else ret1
+              ret3 :: [String] = if null toAddr
+                                 then ret2 ++ ["The receiver address cannot be null"]
+                                 else ret2
+          in ret3
+        validParams :: String -> String -> String -> Bool
+        validParams fromAddr toAddr amountStr = paramErrors fromAddr toAddr amountStr == []
+        params :: String = show ps
+    -- Fetch the parameters
     currentTime :: UTCTime <- liftIO getCurrentTime
-    let params :: String = show ps
     fromAddr :: String <- param "fromAddress"
     toAddr :: String <- param "toAddress"
     amountStr :: String <- param "amount"
-    when (validParams fromAddr toAddr amountStr) $ do
+    -- When there are not errors, do the send transaction.
+    if (validParams fromAddr toAddr amountStr) then do
+      -- We know the amountStr is a valid float at this point, so
+      -- the conversion to float should not cause an error.
       let amount :: Float = read amountStr
       -- Find out how much the sender has.
       value <- webM $ gets (getAppValue fromAddr)
       -- Enter the transaction into the log
       webM $ do
         -- Find out if the sender has sufficient funds
-        when (amount <= value) $ do
+        if amount <= value then do
           -- Add the transaction to the log
           modify $ \ st -> addAppTransaction currentTime fromAddr toAddr amount st
           -- Transfer the funds from sender to receiver
           modify $ \ st -> appAddValue fromAddr (-amount) st
           modify $ \ st -> appAddValue toAddr amount st
-          return ()
-      return value
-        -- TODO: Include an error message in the homePage
-      when (amount > value) (status status403)
-    when (null fromAddr) (status status403)
-    when (null toAddr) (status status403)
+        else return ()
+    else do
+      status status403
+      webM $ modify $ \ st -> setErrors (paramErrors fromAddr toAddr amountStr) st
     redirect "/pout-jersey"
 
   post "/pout-jersey/create" $ do

@@ -16,10 +16,15 @@ import Data.Text hiding (length, head, null)
 import Control.Monad
 import qualified Data.Map as Map
 
+-- Output an error message
+-- For right now, use h4 style, make it prettier later
+errorLine :: String -> Html
+errorLine errMsg = h4 ! class_ "ui header" $ text (pack errMsg)
+
 -- Building the home page with combinators, to make it easier
 -- to insert the ledger and the transaction log.
-homePage :: String -> String -> Ledger -> Log -> Html
-homePage titleStr lastError ledger log = do
+homePage :: String -> [String] -> Ledger -> Log -> Html
+homePage titleStr lastErrors ledger log = do
   docType
   html $ do
     head $ do
@@ -27,13 +32,12 @@ homePage titleStr lastError ledger log = do
       link ! rel "stylesheet" ! media "screen" ! href "//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/css/semantic.min.css"
       link ! rel "stylesheet" ! media "screen" ! href "/assets/stylesheets/main.css"
     body $ do
-      when (not (null lastError)) $ do
-        h1 ! class_ "ui header" $ text (pack lastError)
       div ! class_ "ui page grid" $ do
         div ! class_ "column" $ do
           div ! class_ "row" $ do
             h1 ! class_ "ui header" $ text ("Jobcoin Viewer for Peter D. White")
             a ! href "/pout-jersey/api" $ text("API docs")
+            when (not (null lastErrors)) $ foldMap errorLine lastErrors
             p ""
             div ! class_ "ui two column grid" $ do
               div ! class_ "row" $ do

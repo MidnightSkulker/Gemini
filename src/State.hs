@@ -5,8 +5,8 @@ module State (
   getAppValue,
   appAddValue,
   addAppTransaction,
-  removeError,
-  addError ) where
+  removeErrors,
+  setErrors ) where
 
 import Log
 import Address
@@ -20,22 +20,22 @@ import GHC.Generics
 data AppState = AppState
   { appLog :: Log,
     appLedger :: Ledger,
-    lastError :: String -- Most recent error
+    lastErrors :: [String] -- Most recent error messages
   } deriving (Show, Generic, ToJSON)
 
 initAppState = AppState {
   appLog = emptyLog,
   appLedger = emptyLedger,
   -- Last error that occured
-  lastError = "" }
+  lastErrors = [] }
 
 -- remove the last error message
-removeError :: AppState -> AppState
-removeError appState = appState { lastError = "" }
+removeErrors :: AppState -> AppState
+removeErrors appState = appState { lastErrors = [] }
 
 -- Add an error message
-addError :: String -> AppState -> AppState
-addError s appState = appState { lastError = s }
+setErrors :: [String] -> AppState -> AppState
+setErrors errorMessages appState = appState { lastErrors = errorMessages }
 
 -- Add coins to a ledger
 appAddValue :: Address -> Amount ->AppState -> AppState
