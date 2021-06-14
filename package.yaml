@@ -35,6 +35,7 @@ dependencies:
 - containers
 - mtl
 - data-default-class
+- aeson-pretty
 
 library:
   source-dirs: src
