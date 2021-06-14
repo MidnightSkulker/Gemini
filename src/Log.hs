@@ -13,6 +13,7 @@ module Log (
 
 import Data.Time.Clock
 import Data.Aeson
+import Data.Aeson.Encode.Pretty (encodePretty)
 import GHC.Generics
 import Text.Blaze.Html
 import Text.Blaze.XHtml1.FrameSet

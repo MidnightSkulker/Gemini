@@ -20,6 +20,7 @@ import qualified Data.ByteString.Char8 as C
 import Data.String
 import Data.Default.Class
 import Data.Time.Clock
+import Data.Aeson.Encode.Pretty (encodePretty)
 import Coins
 import State
 import Address
@@ -183,6 +184,7 @@ app = do
     entries <- webM $ gets (getAppTransactions addr)
     -- json :: ToJSON a => a -> ActionM ()
     json ( TransactionReport { balance = amount, transactions = entries } )
+    -- text (L.toStrict (encodePretty (TransactionReport { balance = amount, transactions = entries } )))
 
   notFound $ do
     r <- request
