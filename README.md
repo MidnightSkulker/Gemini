@@ -33,3 +33,10 @@ a threat for XSS, or SQL injection if a database were under the web server.
 This is a fix that is needed, but requires discussion with the potential
 customers to make sure that whatever restrictions are enforced meet their
 needs.
+
+JSON Format
+My Json output is not pretty printed. I am working with a library to make it
+pretty printed, but this gets into Haskell's worst area, which is different
+ByteString types used in different libraries. Probably the quickest fix is
+to implement my own data to JSON converter for the data structures at hand,
+but I would like to use a more general approach.
