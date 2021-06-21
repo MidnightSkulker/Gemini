@@ -14,6 +14,7 @@ module Log (
 import Data.Time.Clock
 import Data.Aeson
 import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.Text.Encoding (decodeUtf8)
 import GHC.Generics
 import Text.Blaze.Html
 import Text.Blaze.XHtml1.FrameSet

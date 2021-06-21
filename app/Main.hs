@@ -16,11 +16,14 @@ import Text.Blaze.Html hiding (text) -- Conflicts with Scotty
 import Text.Blaze.Html.Renderer.String
 
 import qualified Data.Text.Lazy as L
+import qualified Data.Text.Internal as TI
 import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy.Internal as LI
 import Data.String
 import Data.Default.Class
 import Data.Time.Clock
 import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.Text.Encoding (decodeUtf8)
 import Coins
 import State
 import Address
@@ -183,8 +186,13 @@ app = do
     amount <- webM $ gets (getAppValue addr)
     entries <- webM $ gets (getAppTransactions addr)
     -- json :: ToJSON a => a -> ActionM ()
-    json ( TransactionReport { balance = amount, transactions = entries } )
-    -- text (L.toStrict (encodePretty (TransactionReport { balance = amount, transactions = entries } )))
+    -- encodePretty :: ToJSON a => a -> ByteString
+    -- unpackChars :: ByteString -> [Char]
+    let pretty :: LI.ByteString =
+          encodePretty ( TransactionReport { balance = amount, transactions = entries } )
+        prettyStr :: String = LI.unpackChars pretty
+    -- json ( TransactionReport { balance = amount, transactions = entries } )
+    text (L.pack prettyStr)
 
   notFound $ do
     r <- request
